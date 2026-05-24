@@ -80,7 +80,7 @@ export default function HomePage() {
             <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-xl mb-6">
               ⏰
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Smart Smart Reminders</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Smart Reminders</h3>
             <p className="text-slate-600 text-sm leading-relaxed">
               Send professional, localized SMS and WhatsApp reminders with auto-generated payment collection links.
             </p>
