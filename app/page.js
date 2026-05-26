@@ -1,8 +1,10 @@
+import HomePage from "./components/Home";
+
 
 export default function Home() {
   return (
     <div>
-       Hello  developer !! welcome to development branch
+       <HomePage/>
     </div>
   );
 }
