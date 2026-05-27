@@ -1,14 +1,13 @@
-// components/Navbar.jsx
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navLinks = [
-  { href: '/dashboard',      label: 'Dashboard',  icon: '📊' },
-  { href: '/customers',      label: 'Customers',  icon: '👥' },
-  { href: '/smart-reminder', label: 'Reminders',  badge: 18  },
-  { href: '/analytics',      label: 'Analytics'              },
+  { href: '/dashboard',      label: 'Dashboard' },
+  { href: '/contacts',      label: 'Contacts' },
+  { href: '/blogs', label: 'Blogs'},
+  
 ];
 
 export default function Navbar() {
