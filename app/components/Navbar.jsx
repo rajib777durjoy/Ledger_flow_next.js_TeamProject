@@ -8,7 +8,7 @@ import { Show, SignInButton, UserButton, useUser } from '@clerk/nextjs';
 // navlinks for custormer
 const navLinks = [
   { href: '/', label: 'Home', icon: '📊' },
-  { href: '/customers', label: 'Customers', icon: '👥' },
+  // { href: '/customers', label: 'Customers', icon: '👥' },
   { href: '/smart-reminder', label: 'Reminders', badge: 18 },
   { href: '/analytics', label: 'Analytics' },
 ];
