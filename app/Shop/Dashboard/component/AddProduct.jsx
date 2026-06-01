@@ -11,11 +11,14 @@ import {
   Tag,
 } from 'lucide-react';
 import AddProductAction from '../AddProduct/AddProduct.action';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 const AddProduct = () => {
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-
+  const {user} = useUser();
+  const router = useRouter();
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -26,8 +29,14 @@ const AddProduct = () => {
     }
   };
   const handleFormSubmit = async (formData) => {
-
-    const res = await AddProductAction(formData);
+    const clerkId= user?.id
+    const res = await AddProductAction(formData,clerkId);
+    if(res?.success ){
+    return  router.replace('/Shop/Dashboard')
+    }
+   if(!res.success){
+    return res?.message
+   }
   }
 
   return (

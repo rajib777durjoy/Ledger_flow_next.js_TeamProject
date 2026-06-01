@@ -27,7 +27,7 @@ const BecomeShopkeeper = () => {
           Start your own shop, manage customers, track sales and due amounts.
         </p>
 
-        <Link href={'/'} ><button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+        <Link href={'/pages/ShopKeeperForm'} ><button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
           Upgrade Now
         </button></Link>
 

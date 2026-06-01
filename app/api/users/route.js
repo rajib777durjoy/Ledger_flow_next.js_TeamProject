@@ -1,11 +1,17 @@
-
 import sql from "@/lib/db.connect";
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+
+
 export async function POST(req) {
   const data = await req.json();
-  const { userId:clerk_id } = await auth();
+  const clerk_id = data?.id
+  console.log('clerk id :::',clerk_id)
+  if(!clerk_id){
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const ExistingUser= await sql`select * from users_table where clerk_id = ${clerk_id} ;`;
+  // console.log('user exist',ExistingUser)
   if(ExistingUser.length > 0){
     return NextResponse.json(ExistingUser[0])
   }
@@ -13,6 +19,6 @@ export async function POST(req) {
   if(insertUser.length === 0){
    return NextResponse.json({message:'User SignUp failed !!'})
   }
-  console.log('data',data)
+  // console.log('data',data)
   return NextResponse.json({ message: " User Sign Up successfull !" });
 }

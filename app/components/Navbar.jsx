@@ -16,10 +16,11 @@ const navLinks = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [current_user, setuser] = useState([])
+  // const [current_user, setuser] = useState([])
   const pathname = usePathname();
+
   const { isLoaded, isSignedIn, user } = useUser();
-  // console.log('user', user)
+  // console.log('userid', current_user)
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) {
@@ -41,11 +42,13 @@ export default function Navbar() {
       });
       const data = await res.json();
       setuser(data)
-      console.log('data', data)
+      // console.log('data', data)
     }
     insartUserList();
   }, [isLoaded, isSignedIn, user])
-
+  const current_user = {
+    role: 'customer'
+  }
   return (
     <nav className="bg-[#202940] border-b border-white/[0.07] sticky top-0 z-50">
 
@@ -68,31 +71,33 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        {current_user?.role === 'shopkeeper' &&
-          <ul className="hidden md:flex items-center gap-1">
-            {navLinks?.map(({ href, label, badge }) => (
-              <li key={href}>
-                <Link href={href}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13.5px] font-medium transition-all ${pathname === href
-                    ? 'text-amber-500 bg-amber-500/10'
-                    : 'text-slate-300 hover:text-white hover:bg-white/[0.07]'
-                    }`}>
-                  {label}
-                  {badge && (
-                    <span className="bg-amber-500/15 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-amber-500/25">
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            ))}
-            {/* Shopkeeper Dashboard */}
-            <li className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13.5px] font-medium transition-all 
+        
+          {current_user?.role === 'shopkeeper' &&
+            <ul className="hidden md:flex items-center gap-1">
+              {navLinks?.map(({ href, label, badge }) => (
+                <li key={href}>
+                  <Link href={href}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13.5px] font-medium transition-all ${pathname === href
+                      ? 'text-amber-500 bg-amber-500/10'
+                      : 'text-slate-300 hover:text-white hover:bg-white/[0.07]'
+                      }`}>
+                    {label}
+                    {badge && (
+                      <span className="bg-amber-500/15 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-amber-500/25">
+                        {badge}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+              {/* Shopkeeper Dashboard */}
+              <li className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13.5px] font-medium transition-all 
                    text-amber-500 bg-amber-500/10
                   }`}>
-              <Link href={'/CustomerDashboard'} >Dashboard</Link>
-            </li>
-          </ul>}
+                <Link href={'/Shop/Dashboard'} >Dashboard</Link>
+              </li>
+            </ul>}
+      
         {!user && <ul className="hidden md:flex items-center gap-1">
           {navLinks?.map(({ href, label, badge }) => (
             <li key={href}>
@@ -208,7 +213,7 @@ export default function Navbar() {
               className="flex items-center justify-center py-2.5 rounded-xl text-sm font-medium text-slate-300 border border-white/15 hover:bg-white/[0.06] transition-all">
               Sign In
             </Link>
-            
+
           </div>
         }
         {current_user?.role === 'customer' &&
@@ -252,7 +257,7 @@ export default function Navbar() {
               className="flex items-center justify-center py-2.5 rounded-xl text-sm font-medium text-slate-300 border border-white/15 hover:bg-white/[0.06] transition-all">
               Sign In
             </Link>
-            
+
           </div>
         }
       </div>

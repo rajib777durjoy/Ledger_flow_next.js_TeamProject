@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Store, User, Phone, MapPin, FileText, Image } from 'lucide-react';
 import BecomeShopkeeperAction from '../pages/ShopKeeperForm/Shopkeeper.action';
+import { useRouter } from 'next/navigation';
 
 const ShopkeeperFormComponent = () => {
   const [preview, setPreview] = useState(null);
-
+  const router = useRouter()
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -16,6 +17,9 @@ const ShopkeeperFormComponent = () => {
   };
   const handleShopFrom =async(formData)=>{
    const res = await BecomeShopkeeperAction(formData);
+   if(res.message){
+     router.replace("/");
+   }
 
   }
 

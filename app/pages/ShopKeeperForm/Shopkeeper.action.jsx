@@ -3,17 +3,23 @@
 import sql from "@/lib/db.connect";
 import { auth } from "@clerk/nextjs/server";
 import { imagekitUpload } from "@/app/Imagekit/Imagekit";
-import { q } from "framer-motion/client";
+
 
 const BecomeShopkeeperAction = async (formData) => {
     try {
         const { userId: clerk_id } = await auth(); //  Clerk user id
-
+        // console.log('clerk id:;', clerk_id)
         if (!clerk_id) {
             return { error: "Unauthorized user" };
         }
-        const query_user = await sql`select id from users_table where clerk_id = ${clerk_id};`;
-        const user_id = query_user?.id;
+        const [user] = await sql`SELECT id FROM users_table
+  WHERE clerk_id = ${clerk_id};
+`;
+        const user_id = user?.id;
+        if (!user_id) {
+            return { message: 'user id is not found !!' }
+        }
+
         const data = Object.fromEntries(formData.entries());
         console.log('data', data);
 
@@ -25,7 +31,6 @@ const BecomeShopkeeperAction = async (formData) => {
         if (!imageUrl) {
             return { error: "Image upload failed" };
         }
-
         const { Shop_name, Owner_name, phone, address, description } = data || {};
 
         const InsertShopDetails = await sql`
@@ -35,8 +40,14 @@ const BecomeShopkeeperAction = async (formData) => {
         (${Shop_name}, ${Owner_name}, ${imageUrl}, ${address}, ${phone}, ${description}, ${user_id})
       RETURNING *;
     `;
+        if (InsertShopDetails.length > 0) {
+            await sql`
+    UPDATE users_table
+    SET role = 'shopkeeper'
+    WHERE clerk_id = ${clerk_id}
+  `;}
 
-        return { success: true, data: InsertShopDetails[0] };
+    return {message: "Shop created & role updated successfully!",};
 
     } catch (error) {
         console.error(error);
