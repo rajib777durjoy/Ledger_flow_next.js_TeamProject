@@ -1,10 +1,29 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, ShoppingBag, CreditCard, Store } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
 
 const StaticPageComponent = () => {
+    const { user } = useUser();
+    const [customerData, setCustomerData] = useState({})
+
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            const res = await fetch(`/api/CustomerDashboard?id=${user?.id}`);
+            const data = await res.json();
+            console.log("API data:", data);
+            setCustomerData(data);
+        };
+
+        if (user) {
+            fetchCustomerData();
+        }
+    }, [user]);
+
+
+    // console.log('customer data in component',customerData);
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-6">
 
@@ -30,17 +49,30 @@ const StaticPageComponent = () => {
                     className="bg-white rounded-2xl shadow-md p-5"
                 >
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <User className="text-blue-600" />
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                            {customerData?.profile ? (
+                                <img
+                                    src={customerData.profile}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <User className="text-blue-600" />
+                            )}
                         </div>
+
                         <div>
-                            <h2 className="font-semibold">Customer Name</h2>
-                            <p className="text-sm text-gray-500">Active Customer</p>
+                            <h2 className="font-semibold">
+                                {customerData?.fullname || "Customer Name"}
+                            </h2>
+
+                            <p className="text-sm text-gray-500">
+                                {customerData?.role || "Active Customer"}
+                            </p>
                         </div>
                     </div>
 
                     <div className="mt-4 text-sm text-gray-600">
-                        Phone: +880 1XXXXXXXXX
+                        Email: {customerData?.email || "No email found"}
                     </div>
                 </motion.div>
 
@@ -55,7 +87,7 @@ const StaticPageComponent = () => {
                     </div>
 
                     <p className="text-3xl font-bold text-red-500">
-                        ৳ 2,500
+                        ৳ {customerData?.total_due || 2500}
                     </p>
 
                     <p className="text-sm text-gray-500 mt-2">
@@ -74,7 +106,7 @@ const StaticPageComponent = () => {
                     </div>
 
                     <p className="text-3xl font-bold text-green-600">
-                        12 Items
+                        {customerData?.total_purchases || 12} Items
                     </p>
 
                     <p className="text-sm text-gray-500 mt-2">
