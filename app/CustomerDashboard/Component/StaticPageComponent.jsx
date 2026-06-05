@@ -7,7 +7,8 @@ import { useUser } from '@clerk/nextjs';
 
 const StaticPageComponent = () => {
     const { user } = useUser();
-    const [customerData, setCustomerData] = useState({})
+    const [customerData, setCustomerData] = useState({});
+    const [purchaseData,setPurchaseData]= useState([]);
 
     useEffect(() => {
         const fetchCustomerData = async () => {
@@ -16,9 +17,16 @@ const StaticPageComponent = () => {
             console.log("API data:", data);
             setCustomerData(data);
         };
+        const fetchPurchaseData = async()=>{
+         const res = await fetch(`/api/CustomerDashboard/PurchasesRoute?id=${user?.id}`)
+         const data = await res.json();
+         console.log('purchase data',data);
+         setPurchaseData(data);
+        }
 
         if (user) {
             fetchCustomerData();
+            fetchPurchaseData();
         }
     }, [user]);
 

@@ -8,9 +8,8 @@ import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const [userData, setUserData] = useState({});
   const { isLoaded, isSignedIn, user } = useUser();
-
-  const role = 'customer'; // later: replace with DB role
 
   // optional: user sync API
   useEffect(() => {
@@ -22,14 +21,22 @@ export default function Navbar() {
       imageUrl: user.imageUrl,
       email: user.emailAddresses?.[0]?.emailAddress,
     };
-
-    fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const fetchUserfunction = async () => {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      console.log('user data', data);
+      setUserData(data);
+    }
+    if (user) {
+      fetchUserfunction();
+    }
   }, [isLoaded, isSignedIn, user]);
 
+  const role = userData?.role;
   const linkClass = (path) =>
     `px-3 py-1.5 rounded-lg text-sm font-medium transition ${pathname === path
       ? 'text-amber-500 bg-amber-500/10'
@@ -54,7 +61,7 @@ export default function Navbar() {
           </li>
 
           <li>
-            <Link className={linkClass('/Shoplist')} href="/Shoplist">
+            <Link className={linkClass('/pages/ShopList')} href="/pages/ShopList">
               Shop List
             </Link>
           </li>
@@ -92,7 +99,7 @@ export default function Navbar() {
           {role === 'shopkeeper' && (
             <>
               <li>
-                <Link className={linkClass('/shop/dashboard')} href="/shop/dashboard">
+                <Link className={linkClass('/Shop/Dashboard/Static')} href="/Shop/Dashboard/Static">
                   Dashboard
                 </Link>
               </li>
@@ -118,7 +125,7 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden px-4 py-3 space-y-2 bg-[#1a2236]">
           <Link className={linkClass('/')} href="/">Home</Link>
-          <Link className={linkClass('/Shoplist')} href="/Shoplist">
+          <Link className={linkClass('/pages/ShopList')} href="/pages/ShopList">
             Shop List
           </Link>
           {role === 'customer' && (
@@ -147,7 +154,7 @@ export default function Navbar() {
           )}
 
           {role === 'shopkeeper' && (
-            <Link className={linkClass('/shop/dashboard')} href="/shop/dashboard">
+            <Link className={linkClass('/Shop/Dashboard/Static')} href="/Shop/Dashboard/Static">
               Dashboard
             </Link>
           )}
