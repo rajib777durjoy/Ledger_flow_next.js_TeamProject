@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { FaWhatsapp } from "react-icons/fa";
 import {
     Dialog,
     DialogContent,
@@ -12,13 +13,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { useUser } from '@clerk/nextjs';
+import UseAlertMessage from '@/app/Hook/UseAlertMessage';
 
 const ShopInfo = () => {
     const params = useParams();
+    const { user } = useUser()
     const { id } = params;
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [paymentStatus, setPaymentStatus] = useState('fullpayment');
-    const [DueAmount,SetDueAmount]=useState(0);
+    const [DueAmount, SetDueAmount] = useState(0);
+    const [cus_phone, setCus_phone] = useState('')
     console.log('payment status::', paymentStatus)
 
     const { data: products = [], isLoading, refetch } = useQuery({
@@ -69,9 +74,40 @@ const ShopInfo = () => {
             )
         );
     };
+    const handlePricePerProduct = (productId, price) => {
+        setSelectedProducts((prev) =>
+            prev.map((p) =>
+                p.productId === productId ? { ...p, price: Number(price) } : p
+            )
+        )
+    }
     const handleBuyProduct = async () => {
         console.log('clicked function !!!')
         /// todo send request to server for seles product insert and add due amount //
+        let amount = DueAmount;
+
+        const Phone_regex = /^\+8801\d{9}$/;
+        if (!Phone_regex.test(cus_phone)) {
+            alert("Please enter valid Bangladeshi number");
+            return;
+        }
+        const data = {
+            cus_id: user?.id,
+            shop_id: id,
+            cus_phone: cus_phone,
+            productIdAndQuantity: selectedProducts,
+            amount: amount,
+            paymentStatus: paymentStatus,
+        }
+        console.log('data', data)
+        const res = await axios.post('/api/Shop', data);
+        console.log('response::', res.data);
+        if (res.data?.suceess === true) {
+          return UseAlertMessage({message:res.data?.message,type:'suceess'})
+        }
+        else{
+          return UseAlertMessage({message:'Buy product Request failed ',type:'error'})  
+        }
     }
     console.log('select product id ', selectedProducts)
     console.log('total amount', totalAmount)
@@ -162,8 +198,10 @@ const ShopInfo = () => {
                                 <input
                                     type="checkbox"
                                     checked={!!selected}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
                                         handleSelect(product.product_id, e.target.checked)
+                                        handlePricePerProduct(product.product_id, product?.price)
+                                    }
                                     }
                                     className="w-5 h-5 accent-green-600"
                                 />
@@ -213,7 +251,7 @@ const ShopInfo = () => {
                         <Dialog>
                             <DialogTrigger>
                                 <button className="btn bg-green-700 text-white px-4 py-2 rounded-xl">
-                                    Open
+                                    Confirm Purchase
                                 </button>
                             </DialogTrigger>
                             <DialogContent>
@@ -264,18 +302,37 @@ const ShopInfo = () => {
                                             type="number"
                                             placeholder="Enter due amount"
                                             className="w-full border rounded-lg px-3 py-2 mt-1"
-                                            onChange={(e)=>SetDueAmount(e.target.value)}
+                                            onChange={(e) => SetDueAmount(e.target.value)}
                                         />
                                     </div>
                                 }
 
 
+                                <div className="w-full">
+                                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                                        Your WhatsApp Number
+                                    </label>
+
+                                    <div className="relative">
+                                        <FaWhatsapp className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500 text-xl" />
+
+                                        <input
+                                            type="tel"
+                                            placeholder="+8801XXXXXXXXX"
+                                            required
+                                            onChange={(e) => setCus_phone(e.target.value)}
+                                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                                        />
+                                    </div>
+                                </div>
+
                                 {/* Total Summary */}
                                 <div className="mt-4 p-3 bg-gray-100 rounded-lg">
                                     <p>Total Amount: <b>৳ {totalAmount}</b></p>
-                                    <p>
+                                    {paymentStatus === 'paymentDue' && <p>
                                         Pay Now: <b>৳ {totalAmount - (DueAmount || 0)}</b>
                                     </p>
+                                    }
                                 </div>
 
                                 {/* Action Button */}
@@ -284,7 +341,7 @@ const ShopInfo = () => {
                                         onClick={handleBuyProduct}
                                         className="btn bg-green-700 text-white hover:bg-green-900 px-4 py-2 rounded-xl"
                                     >
-                                       Buy Confirm 
+                                        Buy Confirm
                                     </button>
                                 </div>
                             </DialogContent>

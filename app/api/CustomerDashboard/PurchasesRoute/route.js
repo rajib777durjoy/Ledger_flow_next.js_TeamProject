@@ -13,7 +13,8 @@ if(customerData.length === 0){
 }
 console.log('customer data in ', customerData);
 const cus_id = customerData[0]?.id;
-const purchaseData = await sql`SELECT * FROM sales_table WHERE customer_id = ${cus_id}`;
+const purchaseData = await sql`SELECT s.quantity,s.created_at,p.product_name,p.price,p.shop_id,p.unity FROM sales_table s join products_table p on s.product_id = p.id WHERE s.cus_id = ${cus_id}`;
+ 
 console.log('purchase data in', purchaseData);
-return NextResponse.json({ purchaseData });
+return NextResponse.json(purchaseData);
 }

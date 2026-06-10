@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import { socket } from '../socket/socket';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,13 +15,13 @@ export default function Navbar() {
   // optional: user sync API
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
-
     const payload = {
       id: user.id,
       fullname: user.fullName,
       imageUrl: user.imageUrl,
       email: user.emailAddresses?.[0]?.emailAddress,
     };
+    console.log('clerk user id:', user?.id)
     const fetchUserfunction = async () => {
       const res = await fetch('/api/users', {
         method: 'POST',
@@ -30,11 +31,22 @@ export default function Navbar() {
       const data = await res.json();
       console.log('user data', data);
       setUserData(data);
+      socket.emit('send_user', { user_id: data?.id, })
     }
     if (user) {
       fetchUserfunction();
     }
-  }, [isLoaded, isSignedIn, user]);
+  }, [isSignedIn, isLoaded, user]);
+
+  /// socket connection  ///
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected:", socket.id);
+    });
+    socket.on("connect", () => {
+      console.log("Connected:", socket.id);
+    });
+  }, [])
 
   const role = userData?.role;
   const linkClass = (path) =>
@@ -74,15 +86,15 @@ export default function Navbar() {
               </li>
             </>
           )}
-          {role === 'shopkeeper' && (
+          {/* {role === 'shopkeeper' && (
             <>
               <li>
-                <Link className={linkClass('/due-customers')} href="/due-customers">
-                  Due Customers
+                <Link className={linkClass('/Shop/Dashboard/CustomerDue')} href="/Shop/Dashboard/CustomerDue">
+                 Customers Due
                 </Link>
               </li>
             </>
-          )}
+          )} */}
 
           {/* CUSTOMER ROLE */}
           {role === 'customer' && (
@@ -137,15 +149,15 @@ export default function Navbar() {
               </li>
             </>
           )}
-          {role === 'shopkeeper' && (
+          {/* {role === 'shopkeeper' && (
             <>
               <li>
-                <Link className={linkClass('/shop/due-customers')} href="/due-customers">
-                  Due Customers
+                <Link className={linkClass('/Shop/Dashboard/CustomerDue')} href="/Shop/Dashboard/CustomerDue">
+                  Customers Due
                 </Link>
               </li>
             </>
-          )}
+          )} */}
 
           {role === 'customer' && (
             <Link className={linkClass('/CustomerDashboard')} href="/CustomerDashboard">

@@ -4,11 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, ShoppingBag, CreditCard, Store } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 const StaticPageComponent = () => {
     const { user } = useUser();
     const [customerData, setCustomerData] = useState({});
-    const [purchaseData,setPurchaseData]= useState([]);
+    const [purchaseData, setPurchaseData] = useState([]);
 
     useEffect(() => {
         const fetchCustomerData = async () => {
@@ -17,11 +18,11 @@ const StaticPageComponent = () => {
             console.log("API data:", data);
             setCustomerData(data);
         };
-        const fetchPurchaseData = async()=>{
-         const res = await fetch(`/api/CustomerDashboard/PurchasesRoute?id=${user?.id}`)
-         const data = await res.json();
-         console.log('purchase data',data);
-         setPurchaseData(data);
+        const fetchPurchaseData = async () => {
+            const res = await fetch(`/api/CustomerDashboard/PurchasesRoute?id=${user?.id}`)
+            const data = await res.json();
+            console.log('purchase data', data);
+            setPurchaseData(data);
         }
 
         if (user) {
@@ -30,7 +31,17 @@ const StaticPageComponent = () => {
         }
     }, [user]);
 
+    const getDaysAgo = (dateString) => {
+        const now = new Date();
+        const created = new Date(dateString);
 
+        const diffTime = now - created;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return "Today";
+        if (diffDays === 1) return "1 day ago";
+        return `${diffDays} days ago`;
+    };
     // console.log('customer data in component',customerData);
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-6">
@@ -127,30 +138,31 @@ const StaticPageComponent = () => {
             {/* Buy History */}
             <div className="max-w-6xl mx-auto mt-8">
                 <h2 className="text-xl font-semibold mb-3">Purchase History</h2>
+                {
+                    purchaseData?.slice(0, 4).map((item, index) => <div key={index + 1} className="bg-white my-1 rounded-2xl shadow-md p-4 space-y-3">
 
-                <div className="bg-white rounded-2xl shadow-md p-4 space-y-3">
+                        <div className="flex justify-between border-b pb-2 ">
+                            <span>{item?.product_name} {item?.unity} </span>
+                            <span>৳{Number(item?.price) * Number(item?.quantity)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>
+                                Quantity: {item?.quantity}
+                            </span>
 
-                    <div className="flex justify-between border-b pb-2">
-                        <span>Rice (50kg)</span>
-                        <span>৳ 3,500</span>
-                    </div>
-
-                    <div className="flex justify-between border-b pb-2">
-                        <span>Oil (5L)</span>
-                        <span>৳ 900</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                        <span>Sugar (10kg)</span>
-                        <span>৳ 800</span>
-                    </div>
-
-                    {/* Button */}
-                    <button className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                            <span>
+                                {getDaysAgo(item?.created_at)}
+                            </span>
+                        </div>
+                    </div>)
+                }
+                {/* Button */}
+                <div className='mt-4'>
+                    <Link href={'/CustomerDashboard/Allpurchases'} className="px-4 py-2  bg-amber-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">
                         View All Purchases
-                    </button>
-
+                    </Link>
                 </div>
+
             </div>
 
             {/* Shop-wise Due */}
