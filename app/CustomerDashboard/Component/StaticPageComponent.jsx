@@ -10,6 +10,7 @@ const StaticPageComponent = () => {
     const { user } = useUser();
     const [customerData, setCustomerData] = useState({});
     const [purchaseData, setPurchaseData] = useState([]);
+    const [shop_wise_due, setShop_wise_due] = useState([])
 
     useEffect(() => {
         const fetchCustomerData = async () => {
@@ -24,10 +25,16 @@ const StaticPageComponent = () => {
             console.log('purchase data', data);
             setPurchaseData(data);
         }
+        const fetchShopDuePayment = async () => {
+            const res = await fetch(`/api/CustomerDashboard/shop_wise_due?id=${user?.id}`)
+            const data = await res.json();
+            setShop_wise_due(data)
+        }
 
         if (user) {
             fetchCustomerData();
             fetchPurchaseData();
+            fetchShopDuePayment();
         }
     }, [user]);
 
@@ -166,56 +173,92 @@ const StaticPageComponent = () => {
             </div>
 
             {/* Shop-wise Due */}
-            <div className="max-w-6xl mx-auto mt-8">
-                <h2 className="text-xl font-semibold mb-3">Shop-wise Due</h2>
+            <div className="max-w-6xl mx-auto mt-8 px-4">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* HEADER */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold">
+                        Shop-wise Due
+                    </h2>
 
-                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 flex justify-between items-center border border-gray-100">
+                    <span className="text-sm text-gray-500">
+                        Total Shops: {shop_wise_due?.length || 0}
+                    </span>
+                </div>
 
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <Store className="text-blue-600" size={18} />
+                {/* GRID */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+                    {shop_wise_due?.slice(0,3).map((item, index) => (
+                        <div
+                            key={index}
+                            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 border border-gray-100"
+                        >
+
+                            {/* TOP SECTION */}
+                            <div className="flex items-center justify-between">
+
+                                <div className="flex items-center gap-3">
+
+                                    {/* IMAGE */}
+                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                        <img
+                                            src={item?.shop_image}
+                                            alt="shop"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+
+                                    {/* INFO */}
+                                    <div>
+                                        <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                                            {item?.shop_name}
+                                        </p>
+
+                                        <p className="text-xs text-gray-500">
+                                            {item?.address}
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                {/* DUE AMOUNT */}
+                                <span className="text-red-500 font-bold text-sm sm:text-lg">
+                                    ৳ {Number(item?.total_due).toLocaleString()}
+                                </span>
+
                             </div>
 
-                            <div>
-                                <p className="font-medium">ABC Grocery Shop</p>
-                                <p className="text-xs text-gray-500">Active due account</p>
+                            {/* BOTTOM */}
+                            <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+
+                                <span>
+                                    📞 {item?.phone}
+                                </span>
+
+                                <span>
+                                    🕒 {new Date(item?.last_due_date).toLocaleDateString()}
+                                </span>
+
                             </div>
+
+                            {/* STATUS BADGE */}
+                            <div className="mt-3">
+                                <span className="inline-block px-3 py-1 text-xs rounded-full bg-red-50 text-red-600">
+                                    Active Due
+                                </span>
+                            </div>
+
                         </div>
-
-                        <span className="text-red-500 font-bold text-lg">
-                            ৳ 1,200
-                        </span>
-
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 flex justify-between items-center border border-gray-100">
-
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <Store className="text-blue-600" size={18} />
-                            </div>
-
-                            <div>
-                                <p className="font-medium">City Mart</p>
-                                <p className="text-xs text-gray-500">Active due account</p>
-                            </div>
-                        </div>
-
-                        <span className="text-red-500 font-bold text-lg">
-                            ৳ 1,300
-                        </span>
-
-                    </div>
+                    ))}
 
                 </div>
 
-                {/* View All Button */}
-                <div className="mt-4 flex justify-end">
-                    <button className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                {/* VIEW ALL BUTTON */}
+                <div className="mt-6 flex justify-center sm:justify-end">
+                    <Link href={'/CustomerDashboard/ViewDueAll'} className="w-full sm:w-auto px-5 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition shadow-sm">
                         View All Due
-                    </button>
+                    </Link>
                 </div>
 
             </div>
