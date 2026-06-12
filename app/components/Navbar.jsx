@@ -120,7 +120,7 @@ export default function Navbar() {
         </ul>
 
         {/* Right side */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 text-white">
           {isSignedIn ? <UserButton /> : <SignInButton />}
 
           {/* Mobile button */}
