@@ -18,6 +18,7 @@ const ShoplistPage = () => {
                 );
 
                 setShopData(res.data || []);
+                console.log('shop data ', res.data)
             } catch (error) {
                 console.log(error);
             }
@@ -28,17 +29,17 @@ const ShoplistPage = () => {
         }
     }, [user]);
     const filteredShops = useMemo(() => {
-        return ShopData.filter((shop) =>
-            shop.shop_name
-                ?.toLowerCase()
-                .includes(search.toLowerCase())
-        );
-    }, [ShopData, search]);
+    return ShopData.filter((shop) =>
+        shop.shop_name
+            ?.toLowerCase()
+            .includes(search.toLowerCase())
+    );
+}, [ShopData, search]);
 
     const totalShops = ShopData.length;
 
     const totalOwners = new Set(
-        ShopData.map((shop) => shop.owner_name)
+        (ShopData || []).map((shop) => shop?.owner_name)
     ).size;
 
 
@@ -91,24 +92,24 @@ const ShoplistPage = () => {
 
                 {/* Products */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredShops?.map((shop) => (
+                    {filteredShops.map((shop) => (
                         <div
                             key={shop.id}
                             className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-lg transition"
                         >
                             <img
-                                src={shop.shop_image}
+                                src={shop?.shop_image}
                                 alt={shop.shop_name}
                                 className="w-full h-56 object-cover"
                             />
 
                             <div className="p-5">
                                 <h2 className="text-xl font-bold mb-2">
-                                    {shop.shop_name}
+                                    {shop?.shop_name}
                                 </h2>
 
                                 <p className="text-sm text-gray-500 line-clamp-3">
-                                    {shop.description}
+                                    {shop?.description}
                                 </p>
 
                                 <div className="mt-4 space-y-2 text-sm">
@@ -116,27 +117,27 @@ const ShoplistPage = () => {
                                         <span className="font-semibold">
                                             Owner:
                                         </span>{' '}
-                                        {shop.owner_name}
+                                        {shop?.owner_name}
                                     </p>
 
                                     <p>
                                         <span className="font-semibold">
                                             Phone:
                                         </span>{' '}
-                                        {shop.phone}
+                                        {shop?.phone}
                                     </p>
 
                                     <p>
                                         <span className="font-semibold">
                                             Address:
                                         </span>{' '}
-                                        {shop.address}
+                                        {shop?.address}
                                     </p>
                                 </div>
 
                                 <div className="mt-5 flex gap-2">
                                     <Link
-                                        href={`/pages/ShopList/${shop.id}`}
+                                        href={`/pages/ShopList/${shop?.id}`}
                                         className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
                                     >
                                         View Shop

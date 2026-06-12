@@ -34,7 +34,7 @@ const Customer_DuePage = () => {
     };
 
     if (user?.id) fetchData();
-  }, [user?.id]);
+  }, [user, clerk_id]);
 
   //  TOTAL
   const totalDue = useMemo(
@@ -69,6 +69,12 @@ const Customer_DuePage = () => {
       i.cus_phone.toLowerCase().includes(search.toLowerCase())
     );
   }, [grouped, search]);
+
+  const handleSendAlertMessage=async(cus_id)=>{
+   const res = await axios.post(`${process.env.NEXT_PUBLIC_Extra_Server_Link}/api/send_alert_message/${cus_id}`)
+   console.log('response ',res.data)
+  console.log('click message ')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 p-3 sm:p-4 md:p-6">
@@ -171,7 +177,7 @@ const Customer_DuePage = () => {
 
                 return (
                   <div
-                    key={item.cus_id}
+                    key={i+1}
                     className="border rounded-xl p-3 sm:p-4 hover:shadow-md transition"
                   >
                     {/* TOP */}
@@ -191,16 +197,16 @@ const Customer_DuePage = () => {
 
                         <div className="min-w-0">
                           <p className="font-semibold text-slate-800 truncate">
-                            {item.cus_phone}
+                            {item?.cus_phone}
                           </p>
                           <p className="text-xs text-slate-400">
-                            ID: {item.cus_id}
+                            ID: {item?.cus_id}
                           </p>
                         </div>
                       </div>
 
                       <div className="font-bold text-red-500 text-right">
-                        ৳ {item.total_due.toLocaleString()}
+                        ৳ {item?.total_due.toLocaleString()}
                       </div>
                     </div>
 
@@ -212,9 +218,22 @@ const Customer_DuePage = () => {
                       />
                     </div>
 
-                    <div className="flex justify-between text-xs text-slate-500 mt-1">
-                      <span>{pct}% of total</span>
-                      <span>Due</span>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-500">
+                          {pct}% of total
+                        </span>
+                        <span className="text-sm font-semibold text-orange-600">
+                          Due Amount
+                        </span>
+                      </div>
+
+                      <div className='cursor-pointer' onClick={()=>handleSendAlertMessage(item?.cus_id)}>
+                        <span  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-medium border border-red-200">
+                          <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                          Send Alert
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );
@@ -232,4 +251,3 @@ const Customer_DuePage = () => {
 
 export default Customer_DuePage;
 
-  
