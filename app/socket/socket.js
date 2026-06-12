@@ -1,21 +1,6 @@
-import { Server } from "socket.io";
 
-const io = new Server(3000, {
-  cors: {
-    origin: ["http://localhost:3000"],
-  },
-});
+import { io } from "socket.io-client";
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+export const socket = io(process.env.NEXT_PUBLIC_Extra_Server_Link);
 
-  socket.on("current_user", (data) => {
-    console.log("User ID:", data.user_id);
 
-    // example: save socket.id with user_id
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected:", socket.id);
-  });
-});
